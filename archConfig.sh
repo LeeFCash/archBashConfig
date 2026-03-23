@@ -19,8 +19,8 @@ installGameMode=false
 installMangoHud=false
 installVulkan=false
 installXwaylandSatellite=true
-installVulkanIcdLoader=false # some games need this to run
-installLib32VulkanIcdLoader=false # some games need this to run
+installVulkanIcdLoader=true # some games need this to run
+installLib32VulkanIcdLoader=true # some games need this to run
 
 groupInstallNiriAndStuff=true
 
@@ -54,7 +54,7 @@ if $groupInstallvirtVM; then
 	installVirtManager=true
 	installQemu=true
 	installVde2=true
-	installEbtables=true
+	installIptables=true
 	installDnsmasq=true
 	installBridgeUtils=true
 	installOpenbsdNetcat=true
@@ -182,10 +182,10 @@ elif ! $installVde2 && is_installed vde2; then
 	sudo pacman -Rns vde2
 fi
 
-if $installEbtables && ! is_installed ebtables; then
-	sudo pacman -S ebtables
-elif ! $installEbtables && is_installed ebtables; then
-	sudo pacman -Rns ebtables
+if $installIptables && ! is_installed iptables; then
+	sudo pacman -S iptables
+elif ! $installIptables && is_installed iptables; then
+	sudo pacman -Rns iptables
 fi
 
 if $installDnsmasq && ! is_installed dnsmasq; then
