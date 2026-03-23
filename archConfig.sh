@@ -48,7 +48,7 @@ else
 	installMako=false
 fi
 
-groupInstallvirtVM=false
+groupInstallvirtVM=true
 
 if $groupInstallvirtVM; then
 	installVirtManager=true
@@ -56,18 +56,20 @@ if $groupInstallvirtVM; then
 	installVde2=true
 	installIptables=true
 	installDnsmasq=true
-	installBridgeUtils=true
+	installIproute2=true
 	installOpenbsdNetcat=true
-	installPolkitGnome=true
+	installPolkitGnome=false
+	installSwtpm=true
 else
 	installVirtManager=false
 	installQemu=false
 	installVde2=false
-	installEbtables=false
+	installIptables=false
 	installDnsmasq=false
-	installBridgeUtils=false
+	installIproute2=false
 	installOpenbsdNetcat=false
 	installPolkitGnome=false
+	installSwtpm=true
 fi
 
 # Function to check if a package is installed
@@ -194,10 +196,10 @@ elif ! $installDnsmasq && is_installed dnsmasq; then
 	sudo pacman -Rns dnsmasq
 fi
 
-if $installBridgeUtils && ! is_installed bridge-utils; then
-	sudo pacman -S bridge-utils
-elif ! $installBridgeUtils &&  is_installed bridge-utils; then
-	sudo pacman -Rns bridge-utils
+if $installIproute2 && ! is_installed iproute2; then
+	sudo pacman -S iproute2
+elif ! $installIproute2 &&  is_installed iproute2; then
+	sudo pacman -Rns iproute2
 fi
 
 if $installOpenbsdNetcat && ! is_installed openbsd-netcat; then
@@ -211,7 +213,13 @@ if $installPolkitGnome && ! is_installed polkit-gnome; then
 	#sudo pacman -S polkit-gnome # I think I should have 
 elif ! $installPolkitGnome && is_installed polkit-gnome; then
 	echo "just here for later2"
-	#sudo pacman -S polkit-gnome # I think I should have 
+	#sudo pacman -Rns polkit-gnome # I think I should have 
+fi
+
+if $installSwtpm && ! is_installed swtpm; then
+	sudo pacman -S swtpm
+elif ! $installSwtpm && is_installed swtpm; then
+	sudo pacman -Rns swtpm
 fi
 
 if $installYay && ! command -v yay &> /dev/null; then
