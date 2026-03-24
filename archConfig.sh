@@ -15,12 +15,31 @@ installBaseDevel=true
 installGit=true
 installYay=true
 installSteam=true
-installGameMode=false
-installMangoHud=false
+installGameMode=true
+installMangoHud=true
 installVulkan=false
 installXwaylandSatellite=true
 installVulkanIcdLoader=true # some games need this to run
 installLib32VulkanIcdLoader=true # some games need this to run
+installOBSstudio=true
+installTeamsForLinuxBin=true
+installDiscordptb=true
+installDolphin=true
+installJava=true
+installPython=true
+installBlueman=true
+installBlender=true
+
+groupInstallNetworkAndStart=true
+
+if $groupInstallNetworkAndStart; then
+	installNetworkManager=true
+	installNetworkManagerApplet=true
+	sudo systemctl enable --now NetworkManager
+else
+	installNetworkManager=false
+	installNetworkManagerApplet=false
+fi
 
 groupInstallNiriAndStuff=true
 
@@ -78,8 +97,63 @@ is_installed() {
 #    pacman -Qi "$1"
 }
 
+manage_install_pkg() {
+	local flag1="$1"
+	local pkg="$2"
+
+	if [[ "$flag1" == true ]] && ! is_installed "$pkg"; then
+		echo "installing $pkg"
+		sudo pacman -S "$pkg"
+	elif [[ "$flag1" == false ]] && is_installed "$pkg"; then
+		echo "uninstalling $pkg"
+		sudo pacman -Rns "$pkg"
+	fi
+}
+
+manage_install_pkg_with_yay() {
+	local flag1="$1"
+	local pkg="$2"
+
+	if $installYay && ! command -v yay &> /dev/null; then
+		echo "installing yay the AUR helper"
+		cd /tmp/
+		git clone https://aur.archlinux.org/yay.git
+		cd yay
+		makepkg -si
+		cd ..
+		rm -rf yay
+	fi
+
+	if [[ "$flag1" == true ]] && [[ "$installYay" == true ]] && ! is_installed "$pkg"; then
+		echo "installing $pkg"
+		yay -S "$pkg"
+	elif [[ "$flag1" == false ]] && is_installed "$pkg"; then
+		echo "uninstalling $pkg"
+		sudo pacman -Rns "$pkg"
+	fi
+}
+# without yay
+manage_install_pkg $installOBSstudio obs-studio
+manage_install_pkg $installDolphin dolphin
+manage_install_pkg $installGameMode gamemode
+manage_install_pkg $installJava jdk21-openjdk
+manage_install_pkg $installPython python
+manage_install_pkg $installMangoHud mangohud
+manage_install_pkg $installBlueman blueman
+manage_install_pkg $installNetworkManager networkmanager
+manage_install_pkg $installNetworkManagerApplet network-manager-applet
+manage_install_pkg $installBlender blender
+# with yay
+manage_install_pkg_with_yay $installTeamsForLinuxBin teams-for-linux-bin
+manage_install_pkg_with_yay $installDiscordptb discord-ptb
+
 if [ ! -d "/home/leecash/AppImages" ]; then
 	mkdir /home/leecash/AppImages
+fi
+
+if $groupInstallNetworkAndStart && is_installed networkmanager && ! systemctl is-active --quiet NetworkManager; then
+	echo "Starting NetworkManager..."
+	sudo systemctl enable --now NetworkManager
 fi
 
 if $update; then
@@ -126,21 +200,6 @@ elif ! $installSteam && is_installed steam; then
 	sudo pacman -Rns steam
 fi
 
-if $installGameMode && ! is_installed gamemode; then
-	echo "installing gamemode"
-	sudo pacman -S gamemode
-elif ! $installGameMode && is_installed gamemode; then
-	echo "uninstalling gamemode"
-	sudo pacman -Rns gamemode
-fi
-
-if $installMangoHud && ! is_installed mangohud; then
-	echo "installing mangohud..."
-	sudo pacman -S mangohud
-elif ! $installMangoHud && is_installed mangohud; then
-	echo "uninstalling mangohud..."
-	sudo pacman -Rns mangohud
-fi
 
 if $installVulkanIcdLoader && ! is_installed vulkan-icd-loader; then
 		sudo pacman -S vulkan-icd-loader
@@ -220,16 +279,6 @@ if $installSwtpm && ! is_installed swtpm; then
 	sudo pacman -S swtpm
 elif ! $installSwtpm && is_installed swtpm; then
 	sudo pacman -Rns swtpm
-fi
-
-if $installYay && ! command -v yay &> /dev/null; then
-	echo "installing yay the AUR helper"
-	cd /tmp/
-	git clone https://aur.archlinux.org/yay.git
-	cd yay
-	makepkg -si
-	cd ..
-	rm -rf yay
 fi
 
 if $installXwaylandSatellite && $installYay && ! is_installed xwayland-satellite; then
