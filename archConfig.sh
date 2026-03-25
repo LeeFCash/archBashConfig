@@ -29,13 +29,14 @@ installJava=true
 installPython=true
 installBlueman=true
 installBlender=true
+installTmux=true
+installNeovim=true
 
 groupInstallNetworkAndStart=true
 
 if $groupInstallNetworkAndStart; then
 	installNetworkManager=true
 	installNetworkManagerApplet=true
-	sudo systemctl enable --now NetworkManager
 else
 	installNetworkManager=false
 	installNetworkManagerApplet=false
@@ -77,8 +78,9 @@ if $groupInstallvirtVM; then
 	installDnsmasq=true
 	installIproute2=true
 	installOpenbsdNetcat=true
-	installPolkitGnome=false
+	installPolkitGnome=false # don't always need it
 	installSwtpm=true
+	virshStartDefaultAndAuto=true
 else
 	installVirtManager=false
 	installQemu=false
@@ -89,6 +91,7 @@ else
 	installOpenbsdNetcat=false
 	installPolkitGnome=false
 	installSwtpm=true
+	virshStartDefaultAndAuto=false
 fi
 
 # Function to check if a package is installed
@@ -107,6 +110,12 @@ manage_install_pkg() {
 	elif [[ "$flag1" == false ]] && is_installed "$pkg"; then
 		echo "uninstalling $pkg"
 		sudo pacman -Rns "$pkg"
+	fi
+	
+	if [[ "$pkg" == "virt-manager" ]] && [[ "$flag1" == true ]] && [[ "$virshStartDefaultAndAuto" == true ]]; then
+		echo "Setting up libvirt default network..."
+		sudo virsh net-start default
+		sudo virsh net-autostart default
 	fi
 }
 
@@ -140,9 +149,11 @@ manage_install_pkg $installJava jdk21-openjdk
 manage_install_pkg $installPython python
 manage_install_pkg $installMangoHud mangohud
 manage_install_pkg $installBlueman blueman
-manage_install_pkg $installNetworkManager networkmanager
 manage_install_pkg $installNetworkManagerApplet network-manager-applet
+manage_install_pkg $installNetworkManager networkmanager
 manage_install_pkg $installBlender blender
+manage_install_pkg $installTmux tmux
+manage_install_pkg $installNeovim neovim
 # with yay
 manage_install_pkg_with_yay $installTeamsForLinuxBin teams-for-linux-bin
 manage_install_pkg_with_yay $installDiscordptb discord-ptb
@@ -269,10 +280,10 @@ fi
 
 if $installPolkitGnome && ! is_installed polkit-gnome; then
 	echo "just here for later"
-	#sudo pacman -S polkit-gnome # I think I should have 
+	#sudo pacman -S polkit-gnome # I don't need
 elif ! $installPolkitGnome && is_installed polkit-gnome; then
 	echo "just here for later2"
-	#sudo pacman -Rns polkit-gnome # I think I should have 
+	#sudo pacman -Rns polkit-gnome # I don't need 
 fi
 
 if $installSwtpm && ! is_installed swtpm; then
