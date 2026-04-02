@@ -42,6 +42,9 @@ installMesa=true
 installTtffontawesome=true
 installProtonGeCustomBin=true
 installNeovimJellybeans=true
+installWaybar=true
+installTtfJetbrainsMonoNerd=true
+installPavucontrol=true
 
 groupInstallNetworkAndStart=true
 
@@ -118,7 +121,7 @@ manage_install_pkg() {
 
 	if [[ "$flag1" == true ]] && ! is_installed "$pkg"; then
 		echo "installing $pkg"
-		pacman -S "$pkg"
+		sudo pacman -S "$pkg"
 		if [[ "$pkg" == "git" ]] && [[ "$setUp" == true ]]; then
 			echo "setting up git LeeFCash"
 			git config --global user.email "leecash133@gmail.com"
@@ -134,7 +137,7 @@ manage_install_pkg() {
 		fi
 	elif [[ "$flag1" == false ]] && is_installed "$pkg"; then
 		echo "uninstalling $pkg"
-		pacman -Rns "$pkg"
+		sudo pacman -Rns "$pkg"
 	fi
 }
 
@@ -203,6 +206,9 @@ manage_install_pkg $installFuzzel fuzzel
 manage_install_pkg $installGrim grim
 manage_install_pkg $installSlurp slurp
 manage_install_pkg $installSwaybg swaybg
+manage_install_pkg $installWaybar waybar
+manage_install_pkg $installTtfJetbrainsMonoNerd ttf-jetbrains-mono-nerd
+manage_install_pkg $installPavucontrol pavucontrol
 # with yay
 manage_install_pkg_with_yay $installTeamsForLinuxBin teams-for-linux-bin
 manage_install_pkg_with_yay $installDiscordptb discord-ptb
@@ -280,6 +286,12 @@ fi
 if [[ "$R" == "8" ]]; then
 	echo "about to show the uptime info."
 	uptime
+fi
+
+if [[ "$R" == "9" ]] && [[ "$installWaybar" == true ]]; then
+	echo "about to setup waybar config."
+	sudo mkdir -p "$HOME/.config/waybar"
+	sudo cp -rf "$HOME/archBashConfig/waybar/style.css" "$HOME/.config/waybar/"
 fi
 
 echo "$R"
