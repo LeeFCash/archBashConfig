@@ -8,7 +8,7 @@
 
 set -e # stops the script when error
 
-R=$((RANDOM % 2))
+R=$((RANDOM % 101))
 echo "${R}" > /tmp/random.txt
 R=$(cat /tmp/random.txt)
 
@@ -41,6 +41,7 @@ installFlatpak=true
 installMesa=true
 installTtffontawesome=true
 installProtonGeCustomBin=true
+installNeovimJellybeans=true
 
 groupInstallNetworkAndStart=true
 
@@ -90,7 +91,7 @@ if $groupInstallvirtVM; then
 	installOpenbsdNetcat=true
 	installPolkitGnome=false # don't always need it
 	installSwtpm=true
-	virshStartDefaultAndAuto=true
+#	virshStartDefaultAndAuto=true
 else
 	installVirtManager=false
 	installQemu=false
@@ -101,7 +102,7 @@ else
 	installOpenbsdNetcat=false
 	installPolkitGnome=false
 	installSwtpm=true
-	virshStartDefaultAndAuto=false
+#	virshStartDefaultAndAuto=false
 fi
 
 # Function to check if a package is installed
@@ -117,7 +118,7 @@ manage_install_pkg() {
 
 	if [[ "$flag1" == true ]] && ! is_installed "$pkg"; then
 		echo "installing $pkg"
-		sudo pacman -S "$pkg"
+		pacman -S "$pkg"
 		if [[ "$pkg" == "git" ]] && [[ "$setUp" == true ]]; then
 			echo "setting up git LeeFCash"
 			git config --global user.email "leecash133@gmail.com"
@@ -126,14 +127,14 @@ manage_install_pkg() {
 		fi
 		if [[ "$pkg" == "virt-manager" ]] && [[ "$setUp" == true ]]; then
 			echo " Add user to libvirt group "
-			sudo usermod -aG libvirt "$USER"
+			usermod -aG libvirt "$USER"
 			echo "Setting up libvirt default network..."
-			sudo virsh net-start default
-			sudo virsh net-autostart default
+			virsh net-start default
+			virsh net-autostart default
 		fi
 	elif [[ "$flag1" == false ]] && is_installed "$pkg"; then
 		echo "uninstalling $pkg"
-		sudo pacman -Rns "$pkg"
+		pacman -Rns "$pkg"
 	fi
 }
 
@@ -156,15 +157,10 @@ manage_install_pkg_with_yay() {
 		yay -S "$pkg"
 	elif [[ "$flag1" == false ]] && is_installed "$pkg"; then
 		echo "uninstalling $pkg"
-		sudo pacman -Rns "$pkg"
+		pacman -Rns "$pkg"
 	fi
 }
 
-if $update; then
-	echo "update the system..."
-	sudo pacman -Syu
-	yay
-fi
 
 # without yay
 manage_install_pkg $installOBSstudio obs-studio
@@ -213,6 +209,7 @@ manage_install_pkg_with_yay $installDiscordptb discord-ptb
 manage_install_pkg_with_yay $installXwaylandSatellite xwayland-satellite
 manage_install_pkg_with_yay $installBrave brave-bin
 manage_install_pkg_with_yay $installProtonGeCustomBin proton-ge-custom-bin
+manage_install_pkg_with_yay $installNeovimJellybeans neovim-jellybeans
 # -----
 if [ ! -d "/home/leecash/AppImages" ]; then
 	mkdir /home/leecash/AppImages
@@ -220,7 +217,7 @@ fi
 
 if $groupInstallNetworkAndStart && is_installed networkmanager && ! systemctl is-active --quiet NetworkManager; then
 	echo "Starting NetworkManager..."
-	sudo systemctl enable --now NetworkManager
+	systemctl enable --now NetworkManager
 fi
 
 if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
@@ -229,13 +226,61 @@ fi
 
 if $installVirtManager && ! systemctl is-active --quiet libvirtd; then
 	# Enable libvirt service
-	sudo systemctl enable --now libvirtd.socket
-	sudo systemctl enable --now libvirtd
+	systemctl enable --now libvirtd.socket
+	systemctl enable --now libvirtd
 	#sudo systemctl enable --now libvirtd.service virtlogd.service
+fi
+
+echo "Type number to random event to get it to happen or enter nothing to make it random.    also if you put letters that will stop the random events from happening."
+read -r rA
+
+if [[ -n "$rA" ]]; then
+	R="$rA"
 fi
 
 if [[ "$R" == "1" ]]; then
 	fastfetch
 fi
 
+if [[ "$R" == "2" ]] && [[ "$update" == true ]]; then
+	echo "update the system."
+	echo "pacman first"
+	sudo pacman -Syu
+	echo "yay after."
+	yay -Syu
+fi
+
+if [[ "$R" == "3" ]] && [[ "$installNiri" == true ]]; then
+	echo "about to setup niri config."
+	sudo mkdir -p "$HOME/.config/niri"
+	sudo cp -rf "$HOME/archBashConfig/niri/config.kdl" "$HOME/.config/niri/"
+fi
+
+if [[ "$R" == "4" ]] && [[ "$installMako" == true ]]; then
+	echo "about to setup mako config."
+	sudo mkdir -p "$HOME/.config/mako"
+	sudo cp -rf "$HOME/archBashConfig/mako/config" "$HOME/.config/mako/"
+fi
+
+if [[ "$R" == "5" ]] && [[ "$installNeovim" == true ]]; then
+	echo "about to setup neovim config."
+	sudo mkdir -p "$HOME/.config/nvim"
+	sudo cp -rf "$HOME/archBashConfig/nvim/init.vim" "$HOME/.config/nvim/"
+fi
+
+if [[ "$R" == "6" ]]; then
+	echo "Sometimes the script will do something at this point but this time it's just letting you know."
+fi
+
+if [[ "$R" == "7" ]]; then
+	echo "about to show mem/swap info."
+	free -h
+fi
+
+if [[ "$R" == "8" ]]; then
+	echo "about to show the uptime info."
+	uptime
+fi
+
+echo "$R"
 echo "script is done"
