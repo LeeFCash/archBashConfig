@@ -406,7 +406,15 @@ binds {
     XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
     XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
 // random stuff        |-----------------|
-    Mod+S allow-when-locked=true { spawn "sh" "-c" "wpctl set-volume @DEFAULT_AUDIO_SINK@ \"$(shuf -i 0-100 -n 1)%\""; }
+Mod+S allow-when-locked=true { spawn "sh" "-c" "
+	amount=$(shuf -i 0-20 -n 1)
+	wpctl set-volume @DEFAULT_AUDIO_SINK@ \"${amount}%+\"
+	CUR=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print $2}')
+	CUR_PCT=$(awk \"BEGIN {print int($CUR * 100)}\")
+	if [[ \"$CUR_PCT\" -ge 100 ]]; then
+		wpctl set-volume @DEFAULT_AUDIO_SINK@ \"0%\"
+	fi
+"; }
     Mod+Shift+A                        { spawn "sh" "-c" "
 	items=(
 		\"Gmail\"
@@ -422,6 +430,7 @@ binds {
 		\"flathub\"
 		\"messenger\"
 		\"brave\"
+		\"rumbleS\"
 	)
 
 	index=$((RANDOM % ${#items[@]}))
@@ -459,6 +468,8 @@ binds {
 		xdg-open https://www.messenger.com/new
 	elif grep -qx \"brave\" /tmp/random.txt; then
 		brave
+	elif grep -qx \"rumbleS\" /tmp/random.txt; then
+		xdg-open https://rumble.com/subscriptions
 	else
 		notify-send \"Did not find a match\"
 	fi

@@ -12,7 +12,7 @@ R=$((RANDOM % 101))
 echo "${R}" > /tmp/random.txt
 R=$(cat /tmp/random.txt)
 
-update=false
+update=true
 installFirefox=true
 installBrave=true
 installBaseDevel=true
@@ -45,6 +45,10 @@ installNeovimJellybeans=true
 installWaybar=true
 installTtfJetbrainsMonoNerd=true
 installPavucontrol=true
+installPythonFlask=true
+installGradle=true
+installPyinstaller=true
+installZip=true
 
 groupInstallNetworkAndStart=true
 
@@ -209,6 +213,10 @@ manage_install_pkg $installSwaybg swaybg
 manage_install_pkg $installWaybar waybar
 manage_install_pkg $installTtfJetbrainsMonoNerd ttf-jetbrains-mono-nerd
 manage_install_pkg $installPavucontrol pavucontrol
+manage_install_pkg $installPythonFlask python-flask
+manage_install_pkg $installGradle gradle
+manage_install_pkg $installZip zip
+manage_install_pkg $installZip unzip
 # with yay
 manage_install_pkg_with_yay $installTeamsForLinuxBin teams-for-linux-bin
 manage_install_pkg_with_yay $installDiscordptb discord-ptb
@@ -216,6 +224,7 @@ manage_install_pkg_with_yay $installXwaylandSatellite xwayland-satellite
 manage_install_pkg_with_yay $installBrave brave-bin
 manage_install_pkg_with_yay $installProtonGeCustomBin proton-ge-custom-bin
 manage_install_pkg_with_yay $installNeovimJellybeans neovim-jellybeans
+manage_install_pkg_with_yay $installPyinstaller pyinstaller
 # -----
 if [ ! -d "/home/leecash/AppImages" ]; then
 	mkdir /home/leecash/AppImages
