@@ -49,6 +49,7 @@ installPythonFlask=true
 installGradle=true
 installPyinstaller=true
 installZip=true
+installAudacity=true
 
 groupInstallNetworkAndStart=true
 
@@ -217,6 +218,7 @@ manage_install_pkg $installPythonFlask python-flask
 manage_install_pkg $installGradle gradle
 manage_install_pkg $installZip zip
 manage_install_pkg $installZip unzip
+manage_install_pkg $installAudacity audacity
 # with yay
 manage_install_pkg_with_yay $installTeamsForLinuxBin teams-for-linux-bin
 manage_install_pkg_with_yay $installDiscordptb discord-ptb

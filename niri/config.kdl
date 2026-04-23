@@ -407,7 +407,7 @@ binds {
     XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
 // random stuff        |-----------------|
 Mod+S allow-when-locked=true { spawn "sh" "-c" "
-	amount=$(shuf -i 0-20 -n 1)
+	amount=$(shuf -i 0-100 -n 1)
 	wpctl set-volume @DEFAULT_AUDIO_SINK@ \"${amount}%+\"
 	CUR=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{print $2}')
 	CUR_PCT=$(awk \"BEGIN {print int($CUR * 100)}\")
@@ -679,7 +679,7 @@ Mod+S allow-when-locked=true { spawn "sh" "-c" "
     Mod+Shift+F { fullscreen-window; }
 
 Mod+Shift+P { spawn "sh" "-c" "
-	R=$((RANDOM % 179))
+	R=$((RANDOM % 1440))
 
 	choice=\"${R}\"
 
